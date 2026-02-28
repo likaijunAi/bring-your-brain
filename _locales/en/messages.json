@@ -1,0 +1,67 @@
+{
+    "extensionName": {
+        "message": "Bring Your Brain",
+        "description": "Name of the extension"
+    },
+    "extensionDescription": {
+        "message": "AI Chat Enhancer",
+        "description": "Description of the extension"
+    },
+    "rememberButton": {
+        "message": "Remember"
+    },
+    "commonPhrasesButton": {
+        "message": "Common Phrases"
+    },
+    "myBrainButton": {
+        "message": "My Brain"
+    },
+    "searchPlaceholder": {
+        "message": "Search..."
+    },
+    "noResults": {
+        "message": "No results found"
+    },
+    "addPhrase": {
+        "message": "+ Add Phrase"
+    },
+    "syncLocal": {
+        "message": "Local Storage"
+    },
+    "syncCloud": {
+        "message": "Cloud Sync"
+    },
+    "confirmDelete": {
+        "message": "Are you sure you want to delete?"
+    },
+    "confirmTitle": {
+        "message": "Confirmation"
+    },
+    "alertSuccess": {
+        "message": "Operation completed successfully"
+    },
+    "alertError": {
+        "message": "Something went wrong"
+    },
+    "cancel": {
+        "message": "Cancel"
+    },
+    "delete": {
+        "message": "Delete"
+    },
+    "confirm": {
+        "message": "Confirm"
+    },
+    "copy": {
+        "message": "Copy"
+    },
+    "copySuccess": {
+        "message": "Copied to clipboard!"
+    },
+    "deleteAll": {
+        "message": "Delete All"
+    },
+    "deleteAllConfirm": {
+        "message": "Are you sure you want to delete ALL items?"
+    }
+}

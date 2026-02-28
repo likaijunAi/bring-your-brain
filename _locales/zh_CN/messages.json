@@ -1,0 +1,65 @@
+{
+    "extensionName": {
+        "message": "带上脑子"
+    },
+    "extensionDescription": {
+        "message": "AI 聊天增强 - 常用语和记忆复用"
+    },
+    "rememberButton": {
+        "message": "记住"
+    },
+    "commonPhrasesButton": {
+        "message": "常用语"
+    },
+    "myBrainButton": {
+        "message": "我的脑子"
+    },
+    "searchPlaceholder": {
+        "message": "搜索..."
+    },
+    "noResults": {
+        "message": "暂无结果"
+    },
+    "addPhrase": {
+        "message": "+ 添加常用语"
+    },
+    "syncLocal": {
+        "message": "本地存储"
+    },
+    "syncCloud": {
+        "message": "云同步"
+    },
+    "confirmDelete": {
+        "message": "确定要删除吗？"
+    },
+    "confirmTitle": {
+        "message": "确认操作"
+    },
+    "alertSuccess": {
+        "message": "操作成功"
+    },
+    "alertError": {
+        "message": "出错了，请重试"
+    },
+    "cancel": {
+        "message": "取消"
+    },
+    "delete": {
+        "message": "删除"
+    },
+    "confirm": {
+        "message": "确认"
+    },
+    "copy": {
+        "message": "复制"
+    },
+    "copySuccess": {
+        "message": "已复制到剪贴板"
+    },
+    "deleteAll": {
+        "message": "全部删除"
+    },
+    "deleteAllConfirm": {
+        "message": "确定要删除所有项目吗？此操作不可逆！"
+    }
+}
