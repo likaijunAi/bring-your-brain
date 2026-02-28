@@ -2,8 +2,40 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  :where([class^="byb-"], [class*=" byb-"]),
+  :where([class^="byb-"], [class*=" byb-"])::before,
+  :where([class^="byb-"], [class*=" byb-"])::after,
+  :where([class^="byb-"], [class*=" byb-"]) * ,
+  :where([class^="byb-"], [class*=" byb-"]) *::before,
+  :where([class^="byb-"], [class*=" byb-"]) *::after {
+    box-sizing: border-box;
+    border-width: 0;
+    border-style: solid;
+    border-color: rgb(229 231 235);
+  }
 
+  :where([class^="byb-"], [class*=" byb-"]) {
+    line-height: 1.5;
+    font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    font-feature-settings: normal;
+    font-variation-settings: normal;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  :where([class^="byb-"], [class*=" byb-"]) button,
+  :where([class^="byb-"], [class*=" byb-"]) input,
+  :where([class^="byb-"], [class*=" byb-"]) optgroup,
+  :where([class^="byb-"], [class*=" byb-"]) select,
+  :where([class^="byb-"], [class*=" byb-"]) textarea {
+    font: inherit;
+    color: inherit;
+    line-height: inherit;
+    margin: 0;
+    padding: 0;
+  }
+}
 
 @layer components {
-    /* Any custom byb- namespaced CSS overrides can go here */
+  /* Any custom byb- namespaced CSS overrides can go here */
 }
