@@ -11,7 +11,7 @@ module.exports = {
     ],
     prefix: 'byb-',
     corePlugins: {
-        preflight: ture,
+        preflight: false,
     },
     theme: {
         extend: {

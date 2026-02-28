@@ -1,5 +1,7 @@
 # Bring Your Brain (BYB)
 
+[English](README.md) | [中文](README.zh-CN.md)
+
 **Bring Your Brain** is a premium browser extension designed to enhance your productivity across multiple AI chat platforms. It provides a unified workspace to save insightful AI responses and manage frequently used prompts and phrases.
 
 ![Bring Your Brain Banner](icons/icon128.png)
@@ -63,4 +65,4 @@ BYB aims for a **vibrant, glassmorphic, and premium** aesthetic. We use soft pin
 
 ## 📄 License
 
-MIT License - see [LICENSE](LICENSE) for details.
+Apache License 2.0 - see [LICENSE](LICENSE) for details.
