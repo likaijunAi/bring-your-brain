@@ -5,8 +5,8 @@ export class ChatGPTAdapter extends BaseAdapter {
         super();
         this.siteId = 'chatgpt';
         this.selectors = {
-            reply: 'div[data-message-author-role="assistant"]',
-            input: 'textarea#prompt-textarea'
+            reply: 'article[data-turn="assistant"]',
+            input: '#prompt-textarea',
         };
     }
 
@@ -14,9 +14,28 @@ export class ChatGPTAdapter extends BaseAdapter {
         const replies = document.querySelectorAll(this.selectors.reply);
         replies.forEach(reply => {
             if (!reply.dataset.bybProcessed) {
-                reply.dataset.bybProcessed = 'true';
-                const btnContainer = buildRemenerBtn(() => reply.innerText);
-                reply.appendChild(btnContainer);
+                const actionContainer = reply.querySelector(".justify-start .items-center")
+                const contentBox = reply.querySelector('div[data-message-author-role="assistant"]')
+                if (actionContainer && contentBox) {
+                    reply.dataset.bybProcessed = 'true';
+                    const btnContainer = buildRemenerBtn(async () => {
+                        try {
+                            const copyBtn = actionContainer.querySelector('button[data-testid="copy-turn-action-button"]');
+                            copyBtn?.click();
+
+                            await new Promise(resolve => setTimeout(resolve, 100));
+
+                            const cleanText = await navigator.clipboard.readText();
+
+                            return cleanText || this.extractCleanText(contentBox);
+
+                        } catch (err) {
+                            console.warn('剪贴板读取失败，使用备用方案:', err);
+                            return this.extractCleanText(contentBox);
+                        }
+                    });
+                    actionContainer.appendChild(btnContainer);
+                }
             }
         });
     }
@@ -39,27 +58,33 @@ export class ChatGPTAdapter extends BaseAdapter {
         const input = this.getInputBox();
         if (!input) return false;
 
-        // Focus first
         input.focus();
 
-        // Strategy 1: document.execCommand (best for React if still active)
-        const success = document.execCommand('insertText', false, text);
+        try {
+            // Simulator paste for contenteditable
+            const dataTransfer = new DataTransfer();
+            dataTransfer.setData('text/plain', text);
 
-        // Strategy 2: If execCommand fails, manually mock React event
-        if (!success) {
-            const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, "value").set;
-            const start = input.selectionStart;
-            const end = input.selectionEnd;
-            const val = input.value;
+            const event = new ClipboardEvent('paste', {
+                bubbles: true,
+                cancelable: true,
+                clipboardData: dataTransfer
+            });
 
-            nativeInputValueSetter.call(input, val.substring(0, start) + text + val.substring(end));
-
-            input.selectionStart = input.selectionEnd = start + text.length;
-
-            const event = new Event('input', { bubbles: true });
             input.dispatchEvent(event);
-        }
 
-        return true;
+            // Also trigger a generic input event and keyboard wake-up
+            this.triggerInputEvents(input);
+
+            return true;
+        } catch (e) {
+            console.error('ChatGPT insert error:', e);
+            // Fallback to execCommand or manual insert
+            const success = document.execCommand('insertText', false, text);
+            if (!success) {
+                return this.manualInsertHtml(input, text);
+            }
+            return success;
+        }
     }
 }

@@ -8,7 +8,8 @@ export class GeminiAdapter extends BaseAdapter {
             // Per pd.markdown: div.model-response
             reply: 'model-response, div.model-response, message-content',
             // Per pd.markdown: textarea[aria-label*="prompt"] or rich-textarea
-            input: 'rich-textarea div[contenteditable="true"], textarea[aria-label*="prompt"]'
+            input: 'rich-textarea div[contenteditable="true"], textarea[aria-label*="prompt"]',
+            inputActionArea: 'div.leading-actions-wrapper'
         };
     }
 
@@ -16,9 +17,29 @@ export class GeminiAdapter extends BaseAdapter {
         const replies = document.querySelectorAll(this.selectors.reply);
         replies.forEach(reply => {
             if (!reply.dataset.bybProcessed) {
-                reply.dataset.bybProcessed = 'true';
-                const btnContainer = buildRemenerBtn(() => reply.innerText);
-                reply.appendChild(btnContainer);
+                const actionContainer = reply.querySelector(".response-container-footer .buttons-container-v2")
+                const contentBox = reply.querySelector(".presented-response-container")
+                if (actionContainer && contentBox) {
+                    reply.dataset.bybProcessed = 'true';
+                    const btnContainer = buildRemenerBtn(async () => {
+                        try {
+                            const copyBtn = actionContainer.querySelector('[data-test-id="copy-button"]')
+                                || actionContainer.querySelector('button[aria-label="Copy"]');
+                            copyBtn?.click();
+
+                            await new Promise(resolve => setTimeout(resolve, 100));
+
+                            const cleanText = await navigator.clipboard.readText();
+
+                            return cleanText || this.extractCleanText(contentBox);
+
+                        } catch (err) {
+                            console.warn('剪贴板读取失败，使用备用方案:', err);
+                            return this.extractCleanText(contentBox);
+                        }
+                    });
+                    actionContainer.insertBefore(btnContainer, actionContainer.lastChild);
+                }
             }
         });
     }
@@ -30,12 +51,11 @@ export class GeminiAdapter extends BaseAdapter {
     }
 
     insertActionBar(buildActionBar) {
-        const input = this.getInputBox();
-        if (!input) return;
-        const wrapper = input.parentElement;
+        const actionArea = document.querySelector(this.selectors.inputActionArea);
+        const wrapper = actionArea;
         if (wrapper && !wrapper.dataset.bybActionsAdded) {
             wrapper.dataset.bybActionsAdded = 'true';
-            wrapper.appendChild(buildActionBar());
+            wrapper.insertBefore(buildActionBar(), wrapper.lastChild);
         }
     }
 

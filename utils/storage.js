@@ -27,6 +27,23 @@ export class StorageManager {
 
     async get(keys) {
         try {
+            // Always treat REPLIES as local even if global mode is sync
+            if (keys === STORAGE_KEYS.REPLIES || (Array.isArray(keys) && keys.includes(STORAGE_KEYS.REPLIES))) {
+                const localData = await chrome.storage.local.get(keys);
+                if (this.mode === 'sync') {
+                    const syncKeys = Array.isArray(keys) ? keys.filter(k => k !== STORAGE_KEYS.REPLIES) : null;
+                    if (syncKeys && syncKeys.length > 0) {
+                        const syncData = await chrome.storage.sync.get(syncKeys);
+                        return { ...localData, ...syncData };
+                    }
+                    if (!syncKeys && keys !== STORAGE_KEYS.REPLIES) {
+                        // Should not happen with current keys but for completeness
+                        const syncData = await chrome.storage.sync.get(keys);
+                        return { ...localData, ...syncData };
+                    }
+                }
+                return localData;
+            }
             return await this.storage.get(keys);
         } catch (e) {
             console.error('[BringYourBrain] Storage get error:', e);
@@ -36,21 +53,44 @@ export class StorageManager {
 
     async set(items) {
         try {
-            if (this.mode === 'sync') {
-                const currentData = await this.storage.get(null);
-                const newData = { ...currentData, ...items };
-                const estimatedSize = new Blob([JSON.stringify(newData)]).size;
+            const localItems = {};
+            const syncItems = {};
 
-                if (estimatedSize > this.SYNC_LIMIT) {
-                    new AlertToast({
-                        message: i18n.t('alertError') + " (Sync limit reached)",
-                        type: 'warning',
-                        duration: 5000
-                    }).show();
-                    throw new Error("Quota exceeded");
+            for (const key in items) {
+                if (key === STORAGE_KEYS.REPLIES) {
+                    localItems[key] = items[key];
+                } else {
+                    if (this.mode === 'sync') {
+                        syncItems[key] = items[key];
+                    } else {
+                        localItems[key] = items[key];
+                    }
                 }
             }
-            return await this.storage.set(items);
+
+            const promises = [];
+            if (Object.keys(localItems).length > 0) {
+                promises.push(chrome.storage.local.set(localItems));
+            }
+
+            if (Object.keys(syncItems).length > 0) {
+                // Check quota for sync items (8KB per item limit)
+                for (const key in syncItems) {
+                    const valueStr = JSON.stringify(syncItems[key]);
+                    const size = new Blob([valueStr]).size;
+                    if (size > 8000) { // Safety margin before 8192
+                        new AlertToast({
+                            message: `${i18n.t('alertError')} (Item "${key}" too large for sync: ${Math.round(size / 1024)}KB)`,
+                            type: 'warning',
+                            duration: 5000
+                        }).show();
+                        throw new Error(`Quota exceeded for item: ${key}`);
+                    }
+                }
+                promises.push(chrome.storage.sync.set(syncItems));
+            }
+
+            return await Promise.all(promises);
         } catch (e) {
             console.error('[BringYourBrain] Storage set error:', e);
             new AlertToast({
@@ -63,12 +103,13 @@ export class StorageManager {
 
     // Helpers for specific data
     async getReplies() {
-        const data = await this.get([STORAGE_KEYS.REPLIES]);
+        // Force local for replies
+        const data = await chrome.storage.local.get([STORAGE_KEYS.REPLIES]);
         return data[STORAGE_KEYS.REPLIES] || [];
     }
 
     async addReply(site, rawText) {
-        // Truncate to 5000 chars
+        // Truncate to 5000 chars to be safe even for local storage
         const text = rawText.substring(0, 5000);
         const title = text.substring(0, 60).replace(/\n/g, ' ') + (text.length > 60 ? '...' : '');
 
@@ -81,15 +122,15 @@ export class StorageManager {
         };
 
         const replies = await this.getReplies();
-        replies.unshift(reply); // Add to beginning (newest first)
-        await this.set({ [STORAGE_KEYS.REPLIES]: replies });
+        replies.unshift(reply);
+        await chrome.storage.local.set({ [STORAGE_KEYS.REPLIES]: replies });
         return reply;
     }
 
     async deleteReply(id) {
         let replies = await this.getReplies();
         replies = replies.filter(r => r.id !== id);
-        await this.set({ [STORAGE_KEYS.REPLIES]: replies });
+        await chrome.storage.local.set({ [STORAGE_KEYS.REPLIES]: replies });
     }
 
     async getPhrases() {
@@ -99,7 +140,7 @@ export class StorageManager {
 
     async addPhrase(text) {
         const phrase = {
-            id: Date.now(), // Generate ID
+            id: Date.now(),
             text,
             created: Date.now()
         };
