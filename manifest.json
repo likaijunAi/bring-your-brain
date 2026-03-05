@@ -16,7 +16,8 @@
         "https://gemini.google.com/*",
         "https://chat.deepseek.com/*",
         "https://www.kimi.com/*",
-        "https://kimi.moonshot.cn/*"
+        "https://kimi.moonshot.cn/*",
+        "https://chat.qwen.ai/*"
     ],
     "background": {
         "service_worker": "background.js",
@@ -31,7 +32,8 @@
                 "https://gemini.google.com/*",
                 "https://chat.deepseek.com/*",
                 "https://www.kimi.com/*",
-                "https://kimi.moonshot.cn/*"
+                "https://kimi.moonshot.cn/*",
+                "https://chat.qwen.ai/*"
             ],
             "js": [
                 "content.js"

@@ -22,6 +22,9 @@ async function initAdapter() {
         } else if (hostname.includes('gemini.google.com')) {
             const { GeminiAdapter } = await import(chrome.runtime.getURL('adapters/gemini.js'));
             adapterModule = new GeminiAdapter();
+        } else if (hostname.includes('chat.qwen.ai')) {
+            const { QwenAdapter } = await import(chrome.runtime.getURL('adapters/qwen.js'));
+            adapterModule = new QwenAdapter();
         } else {
             console.log(`[BringYourBrain] Site ${hostname} not supported yet.`);
             return null;

@@ -219,6 +219,10 @@
   margin-right: auto;
 }
 
+.byb-mb-0 {
+  margin-bottom: 0px;
+}
+
 .byb-mb-1 {
   margin-bottom: 0.25rem;
 }
@@ -229,6 +233,10 @@
 
 .byb-mb-4 {
   margin-bottom: 1rem;
+}
+
+.byb-mt-0 {
+  margin-top: 0px;
 }
 
 .byb-mt-2 {
@@ -255,6 +263,10 @@
 
 .byb-flex {
   display: flex;
+}
+
+.byb-inline-flex {
+  display: inline-flex;
 }
 
 .byb-h-12 {
