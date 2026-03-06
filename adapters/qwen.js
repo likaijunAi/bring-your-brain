@@ -54,8 +54,9 @@ export class QwenAdapter extends BaseAdapter {
     }
 
     insertActionBar(buildActionBar) {
-        const input = document.querySelector(this.selectors.inputArea).querySelector(".message-input-right-button");
-        const wrapper = input;
+        const input = document.querySelector(this.selectors.inputArea)
+        if (!input) return;
+        const wrapper = input.querySelector(".message-input-right-button");
         if (wrapper && !wrapper.dataset.bybActionsAdded) {
             wrapper.dataset.bybActionsAdded = 'true';
             wrapper.prepend(buildActionBar());

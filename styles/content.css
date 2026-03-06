@@ -273,6 +273,10 @@
   height: 3rem;
 }
 
+.byb-h-2 {
+  height: 0.5rem;
+}
+
 .byb-h-24 {
   height: 6rem;
 }
@@ -307,6 +311,10 @@
 
 .byb-w-12 {
   width: 3rem;
+}
+
+.byb-w-2 {
+  width: 0.5rem;
 }
 
 .byb-w-3 {
@@ -448,6 +456,12 @@
   margin-bottom: calc(0.5rem * var(--tw-space-y-reverse));
 }
 
+.byb-space-y-3 > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-y-reverse: 0;
+  margin-top: calc(0.75rem * calc(1 - var(--tw-space-y-reverse)));
+  margin-bottom: calc(0.75rem * var(--tw-space-y-reverse));
+}
+
 .byb-space-y-4 > :not([hidden]) ~ :not([hidden]) {
   --tw-space-y-reverse: 0;
   margin-top: calc(1rem * calc(1 - var(--tw-space-y-reverse)));
@@ -542,6 +556,11 @@
 .byb-bg-amber-500 {
   --tw-bg-opacity: 1;
   background-color: rgb(245 158 11 / var(--tw-bg-opacity, 1));
+}
+
+.byb-bg-black {
+  --tw-bg-opacity: 1;
+  background-color: rgb(0 0 0 / var(--tw-bg-opacity, 1));
 }
 
 .byb-bg-black\/50 {
@@ -911,6 +930,11 @@
   --tw-shadow: var(--tw-shadow-colored);
 }
 
+.byb-outline-none {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+}
+
 .byb-backdrop-blur-sm {
   --tw-backdrop-blur: blur(4px);
   backdrop-filter: var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);
@@ -975,6 +999,11 @@
   background-color: rgb(249 250 251 / var(--tw-bg-opacity, 1));
 }
 
+.hover\:byb-bg-gray-800:hover {
+  --tw-bg-opacity: 1;
+  background-color: rgb(31 41 55 / var(--tw-bg-opacity, 1));
+}
+
 .hover\:byb-bg-pink-100:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(252 231 243 / var(--tw-bg-opacity, 1));
@@ -1018,6 +1047,10 @@
 .hover\:byb-text-red-500:hover {
   --tw-text-opacity: 1;
   color: rgb(239 68 68 / var(--tw-text-opacity, 1));
+}
+
+.hover\:byb-underline:hover {
+  text-decoration-line: underline;
 }
 
 .hover\:byb-shadow-pink-500\/50:hover {

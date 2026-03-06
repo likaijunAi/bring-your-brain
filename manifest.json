@@ -17,7 +17,9 @@
         "https://chat.deepseek.com/*",
         "https://www.kimi.com/*",
         "https://kimi.moonshot.cn/*",
-        "https://chat.qwen.ai/*"
+        "https://chat.qwen.ai/*",
+        "https://api.notion.com/*",
+        "https://www.notion.so/*"
     ],
     "background": {
         "service_worker": "background.js",

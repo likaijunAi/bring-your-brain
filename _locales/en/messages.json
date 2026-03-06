@@ -41,7 +41,28 @@
         "message": "Operation completed successfully"
     },
     "alertError": {
-        "message": "Something went wrong"
+        "message": "Error occurred"
+    },
+    "notionTitle": {
+        "message": "Notion Integration"
+    },
+    "notionConnect": {
+        "message": "Connect to Notion"
+    },
+    "notionHint": {
+        "message": "Sync your \"My Brain\" replies to Notion"
+    },
+    "notionDisconnect": {
+        "message": "Disconnect"
+    },
+    "notionDatabase": {
+        "message": "Target Database"
+    },
+    "notionSelectDb": {
+        "message": "Select a database..."
+    },
+    "notionAuthError": {
+        "message": "Notion connection failed"
     },
     "cancel": {
         "message": "Cancel"

@@ -41,6 +41,27 @@
     "alertError": {
         "message": "出错了，请重试"
     },
+    "notionTitle": {
+        "message": "Notion 集成"
+    },
+    "notionConnect": {
+        "message": "连接到 Notion"
+    },
+    "notionHint": {
+        "message": "同步“我的大脑”回复到 Notion"
+    },
+    "notionDisconnect": {
+        "message": "断开连接"
+    },
+    "notionDatabase": {
+        "message": "目标数据库"
+    },
+    "notionSelectDb": {
+        "message": "选择数据库..."
+    },
+    "notionAuthError": {
+        "message": "Notion 连接失败"
+    },
     "cancel": {
         "message": "取消"
     },

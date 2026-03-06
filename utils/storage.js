@@ -5,7 +5,10 @@ export const STORAGE_KEYS = {
     SYNC_MODE: 'syncMode',      // 'local' | 'sync'
     LANGUAGE: 'userLanguage',   // 'auto' | 'zh_CN' | 'en'
     REPLIES: 'replies',
-    PHRASES: 'commonPhrases'
+    PHRASES: 'commonPhrases',
+    NOTION_ACCESS_TOKEN: 'notionAccessToken',
+    NOTION_WORKSPACE_NAME: 'notionWorkspaceName',
+    NOTION_DATABASE_ID: 'notionDatabaseId'
 };
 
 export class StorageManager {
@@ -27,24 +30,31 @@ export class StorageManager {
 
     async get(keys) {
         try {
-            // Always treat REPLIES as local even if global mode is sync
-            if (keys === STORAGE_KEYS.REPLIES || (Array.isArray(keys) && keys.includes(STORAGE_KEYS.REPLIES))) {
-                const localData = await chrome.storage.local.get(keys);
-                if (this.mode === 'sync') {
-                    const syncKeys = Array.isArray(keys) ? keys.filter(k => k !== STORAGE_KEYS.REPLIES) : null;
-                    if (syncKeys && syncKeys.length > 0) {
-                        const syncData = await chrome.storage.sync.get(syncKeys);
-                        return { ...localData, ...syncData };
-                    }
-                    if (!syncKeys && keys !== STORAGE_KEYS.REPLIES) {
-                        // Should not happen with current keys but for completeness
-                        const syncData = await chrome.storage.sync.get(keys);
-                        return { ...localData, ...syncData };
-                    }
-                }
-                return localData;
+            const keysArray = Array.isArray(keys) ? keys : [keys];
+            const localOnlyKeys = [
+                STORAGE_KEYS.REPLIES,
+                STORAGE_KEYS.NOTION_ACCESS_TOKEN,
+                STORAGE_KEYS.NOTION_WORKSPACE_NAME,
+                STORAGE_KEYS.NOTION_DATABASE_ID,
+                STORAGE_KEYS.LANGUAGE
+            ];
+
+            const requestedLocalKeys = keysArray.filter(k => localOnlyKeys.includes(k));
+            const requestedSyncKeys = keysArray.filter(k => !localOnlyKeys.includes(k));
+
+            let result = {};
+
+            if (requestedLocalKeys.length > 0) {
+                const localData = await chrome.storage.local.get(requestedLocalKeys);
+                result = { ...result, ...localData };
             }
-            return await this.storage.get(keys);
+
+            if (requestedSyncKeys.length > 0) {
+                const syncData = await this.storage.get(requestedSyncKeys);
+                result = { ...result, ...syncData };
+            }
+
+            return Array.isArray(keys) ? result : result[keys];
         } catch (e) {
             console.error('[BringYourBrain] Storage get error:', e);
             return Array.isArray(keys) ? {} : { [keys]: undefined };
@@ -53,11 +63,19 @@ export class StorageManager {
 
     async set(items) {
         try {
+            const localOnlyKeys = [
+                STORAGE_KEYS.REPLIES,
+                STORAGE_KEYS.NOTION_ACCESS_TOKEN,
+                STORAGE_KEYS.NOTION_WORKSPACE_NAME,
+                STORAGE_KEYS.NOTION_DATABASE_ID,
+                STORAGE_KEYS.LANGUAGE
+            ];
+
             const localItems = {};
             const syncItems = {};
 
             for (const key in items) {
-                if (key === STORAGE_KEYS.REPLIES) {
+                if (localOnlyKeys.includes(key)) {
                     localItems[key] = items[key];
                 } else {
                     if (this.mode === 'sync') {
@@ -79,11 +97,13 @@ export class StorageManager {
                     const valueStr = JSON.stringify(syncItems[key]);
                     const size = new Blob([valueStr]).size;
                     if (size > 8000) { // Safety margin before 8192
-                        new AlertToast({
-                            message: `${i18n.t('alertError')} (Item "${key}" too large for sync: ${Math.round(size / 1024)}KB)`,
-                            type: 'warning',
-                            duration: 5000
-                        }).show();
+                        if (typeof document !== 'undefined') {
+                            new AlertToast({
+                                message: `${i18n.t('alertError')} (Item "${key}" too large for sync: ${Math.round(size / 1024)}KB)`,
+                                type: 'warning',
+                                duration: 5000
+                            }).show();
+                        }
                         throw new Error(`Quota exceeded for item: ${key}`);
                     }
                 }
@@ -93,10 +113,12 @@ export class StorageManager {
             return await Promise.all(promises);
         } catch (e) {
             console.error('[BringYourBrain] Storage set error:', e);
-            new AlertToast({
-                message: i18n.t('alertError'),
-                type: 'error'
-            }).show();
+            if (typeof document !== 'undefined') {
+                new AlertToast({
+                    message: i18n.t('alertError'),
+                    type: 'error'
+                }).show();
+            }
             throw e;
         }
     }
@@ -124,7 +146,34 @@ export class StorageManager {
         const replies = await this.getReplies();
         replies.unshift(reply);
         await chrome.storage.local.set({ [STORAGE_KEYS.REPLIES]: replies });
+
+        // Auto-sync to Notion if configured
+        this.syncToNotion(reply);
+
         return reply;
+    }
+
+    async syncToNotion(reply) {
+        try {
+            // If we are in a content script, we MUST use background proxy to avoid CORS
+            if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.sendMessage) {
+                chrome.runtime.sendMessage({ action: 'notion_save_reply', reply });
+                return;
+            }
+
+            // Fallback/Direct (for Popup or Background contexts)
+            const data = await this.get([
+                STORAGE_KEYS.NOTION_ACCESS_TOKEN,
+                STORAGE_KEYS.NOTION_DATABASE_ID
+            ]);
+
+            if (data[STORAGE_KEYS.NOTION_ACCESS_TOKEN] && data[STORAGE_KEYS.NOTION_DATABASE_ID]) {
+                const { notion } = await import('./notion.js');
+                await notion.saveReply(reply);
+            }
+        } catch (e) {
+            console.error('[BringYourBrain] Notion sync proxy failed:', e);
+        }
     }
 
     async deleteReply(id) {

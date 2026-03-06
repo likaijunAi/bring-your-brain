@@ -1,4 +1,5 @@
 import { storage, STORAGE_KEYS } from './utils/storage.js';
+import { notion } from './utils/notion.js';
 import { i18n } from './utils/i18n.js';
 import { ConfirmDialog, Modal, AlertToast } from './components/index.js';
 
@@ -8,7 +9,6 @@ let brainList = [];
 async function initPopup() {
     await storage.init();
     await i18n.init();
-
     // Basic Localization
     document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
@@ -122,6 +122,82 @@ async function initPopup() {
 
     // Initial Load
     await loadData();
+    await initNotion();
+}
+
+async function initNotion() {
+    const notionStatusDisconnected = document.getElementById('notion-status-disconnected');
+    const notionStatusConnected = document.getElementById('notion-status-connected');
+    const notionWorkspaceName = document.getElementById('notion-workspace-name');
+    const notionDbSelect = document.getElementById('notion-db-select');
+
+    async function updateNotionUI() {
+        const data = await storage.get([
+            STORAGE_KEYS.NOTION_ACCESS_TOKEN,
+            STORAGE_KEYS.NOTION_WORKSPACE_NAME,
+            STORAGE_KEYS.NOTION_DATABASE_ID
+        ]);
+        console.log('Update Notion UI ...');
+        if (data[STORAGE_KEYS.NOTION_ACCESS_TOKEN]) {
+            notionStatusDisconnected.style.display = 'none';
+            notionStatusConnected.style.display = 'block';
+            notionWorkspaceName.textContent = data[STORAGE_KEYS.NOTION_WORKSPACE_NAME] || 'Notion Connected';
+
+            try {
+                const databases = await notion.getDatabases(data[STORAGE_KEYS.NOTION_ACCESS_TOKEN]);
+
+                notionDbSelect.innerHTML = `<option value="">${i18n.t('notionSelectDb')}</option>`;
+                databases.forEach(db => {
+                    const opt = document.createElement('option');
+                    opt.value = db.id;
+                    opt.textContent = db.title?.[0]?.plain_text || 'Untitled Database';
+                    if (db.id === data[STORAGE_KEYS.NOTION_DATABASE_ID]) opt.selected = true;
+                    notionDbSelect.appendChild(opt);
+                });
+            } catch (err) {
+                console.error('[BringYourBrain] Failed to load Notion databases:', err);
+            }
+        } else {
+            notionStatusDisconnected.style.display = 'block';
+            notionStatusConnected.style.display = 'none';
+        }
+    }
+
+    // Token Connection
+    document.getElementById('btn-connect-token').addEventListener('click', async () => {
+        const token = document.getElementById('input-notion-token').value.trim();
+        if (token) {
+            await storage.set({ [STORAGE_KEYS.NOTION_ACCESS_TOKEN]: token });
+            await updateNotionUI();
+            new AlertToast({ message: i18n.t('alertSuccess'), type: 'success' }).show();
+        }
+    });
+
+    document.getElementById('btn-disconnect-notion').addEventListener('click', async () => {
+        const confirmed = await new ConfirmDialog({
+            title: i18n.t('confirmTitle'),
+            message: 'Are you sure you want to disconnect Notion?',
+            confirmText: i18n.t('notionDisconnect'),
+            cancelText: i18n.t('cancel'),
+            type: 'danger'
+        }).show();
+
+        if (confirmed) {
+            await storage.set({
+                [STORAGE_KEYS.NOTION_ACCESS_TOKEN]: null,
+                [STORAGE_KEYS.NOTION_DATABASE_ID]: null,
+                [STORAGE_KEYS.NOTION_WORKSPACE_NAME]: null
+            });
+            await updateNotionUI();
+        }
+    });
+
+    notionDbSelect.addEventListener('change', async (e) => {
+        await storage.set({ [STORAGE_KEYS.NOTION_DATABASE_ID]: e.target.value });
+        new AlertToast({ message: i18n.t('alertSuccess'), type: 'success' }).show();
+    });
+
+    await updateNotionUI();
 }
 
 async function loadData() {

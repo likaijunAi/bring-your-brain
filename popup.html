@@ -120,6 +120,50 @@
                     id="btn-sync-cloud" data-i18n="syncCloud">Cloud Sync</button>
             </div>
         </div>
+
+        <div class="byb-mt-6">
+            <h2 class="byb-text-xs byb-font-semibold byb-text-gray-500 byb-uppercase byb-tracking-wider byb-mb-2"
+                data-i18n="notionTitle">Notion Integration
+            </h2>
+            <div class="byb-bg-white byb-rounded-xl byb-shadow-sm byb-border byb-border-gray-100 byb-p-3"
+                id="notion-config">
+                <div id="notion-status-disconnected" class="byb-space-y-3">
+                    <div id="notion-token-input" class="byb-space-y-2">
+                        <input type="password" id="input-notion-token" placeholder="Internal Integration Token"
+                            class="byb-w-full byb-text-xs byb-p-2 byb-border byb-rounded-lg focus:byb-ring-1 focus:byb-ring-pink-500 byb-outline-none">
+                        <button
+                            class="byb-w-full byb-py-2 byb-bg-black byb-text-white byb-rounded-lg byb-text-sm byb-font-semibold hover:byb-bg-gray-800 byb-transition-colors"
+                            id="btn-connect-token">
+                            <span data-i18n="notionConnect">Connect</span>
+                        </button>
+                    </div>
+
+                    <p class="byb-text-[10px] byb-text-gray-400 byb-mt-2 byb-text-center" data-i18n="notionHint">Sync
+                        your "My Brain" replies to Notion</p>
+                </div>
+
+                <div id="notion-status-connected" style="display: none;" class="byb-space-y-3">
+                    <div class="byb-flex byb-items-center byb-justify-between">
+                        <div class="byb-flex byb-items-center byb-gap-2">
+                            <div class="byb-w-2 byb-h-2 byb-bg-green-500 byb-rounded-full"></div>
+                            <span class="byb-text-xs byb-font-semibold byb-text-gray-700"
+                                id="notion-workspace-name">Notion Connected</span>
+                        </div>
+                        <button class="byb-text-[10px] byb-text-red-500 hover:byb-underline" id="btn-disconnect-notion"
+                            data-i18n="notionDisconnect">Disconnect</button>
+                    </div>
+
+                    <div class="byb-space-y-1">
+                        <label class="byb-text-[10px] byb-font-bold byb-text-gray-400 byb-uppercase"
+                            data-i18n="notionDatabase">Target Database</label>
+                        <select id="notion-db-select"
+                            class="byb-w-full byb-text-xs byb-p-2 byb-border byb-rounded-lg focus:byb-outline-none focus:byb-ring-1 focus:byb-ring-pink-500">
+                            <option value="" data-i18n="notionSelectDb">Select a database...</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Phrases View -->

@@ -1,4 +1,4 @@
-import { storage } from './utils/storage.js';
+import { notion } from './utils/notion.js';
 
 // Simple background script piece
 chrome.runtime.onInstalled.addListener(() => {
@@ -17,5 +17,13 @@ chrome.commands.onCommand.addListener((command) => {
                 chrome.tabs.sendMessage(tabs[0].id, { action: "open_panel_brain" });
             }
         });
+    }
+});
+
+// Handle Notion Save from Content Script (to avoid CORS)
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.action === 'notion_save_reply') {
+        notion.saveReply(message.reply);
+        return true;
     }
 });
